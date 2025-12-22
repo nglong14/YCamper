@@ -7,7 +7,7 @@ function EditCampground() {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,6 @@ function EditCampground() {
       .then(res => {
         setTitle(res.data.title || '');
         setLocation(res.data.location || '');
-        setImage(res.data.image || '');
         setDescription(res.data.description || '');
         setPrice(res.data.price ?? '');
         setLoading(false);
@@ -28,23 +27,59 @@ function EditCampground() {
       });
   }, [id]);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+    
+  //   try {
+  //     await axios.put(`http://localhost:3000/campgrounds/${id}`, {
+  //       title,
+  //       location,
+  //       image,
+  //       description,
+  //       price,
+  //     }, { withCredentials: true });
+  //     navigate(`/campgrounds/${id}`);
+  //   } catch (err) {
+  //     const errorMessage = err.response?.data?.message || err.message || 'Failed to update campground';
+  //     console.error('Error updating campground:', errorMessage);
+  //     alert(errorMessage);
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      await axios.put(`http://localhost:3000/campgrounds/${id}`, {
-        title,
-        location,
-        image,
-        description,
-        price,
-      }, { withCredentials: true });
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('location', location);
+      formData.append('description', description);
+      formData.append('price', price);
+      
+      // Append all images to formData
+      images.forEach((image) => {
+        formData.append('images', image);
+      });
+
+      await axios.put(`http://localhost:3000/campgrounds/${id}`, formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
       navigate(`/campgrounds/${id}`);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to update campground';
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to create campground';
       console.error('Error updating campground:', errorMessage);
       alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -80,16 +115,21 @@ function EditCampground() {
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="image">Image URL:</label>
+          <label htmlFor="images">Image (multiple):</label>
           <br />
           <input
-            type="url"
-            id="image"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
+            type="file"
+            id="images"
             required
+            multiple
+            onChange={handleImageChange}
             style={{ width: '100%', padding: '0.5rem' }}
           />
+          {images.length > 0 && (
+            <p style={{ marginTop: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
+              {images.length} file(s) selected
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: '1rem' }}>

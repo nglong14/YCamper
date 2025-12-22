@@ -40,9 +40,12 @@ router.post('/', isLoggedIn, validateCampground, upload.array('images', 10), cat
     res.json(campground);
 }))
 
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(async (req, res, next) => {
+router.put('/:id', isLoggedIn, isAuthor, validateCampground, upload.array('images', 10), catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, req.body, { new: true });
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body });
+    const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
+    campground.images.push(...imgs);
+    await campground.save();
     res.json(campground);
 }))
 
