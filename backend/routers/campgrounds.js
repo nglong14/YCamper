@@ -1,0 +1,56 @@
+const express = require('express');
+const router = express.Router();
+const Campground = require('../models/campground');
+const catchAsync = require('../utils/catchAsync');
+const ExpressErrors = require('../utils/ExpressErrors');
+const { isLoggedIn, isAuthor, validateCampground } = require('../middleware');
+
+const multer = require('multer');
+const { storage } = require('../cloudinary')
+// const upload = multer({dest: 'uploads/'})
+const upload = multer({storage})
+
+
+router.get('/', catchAsync(async (req, res, next) => {
+    const campgrounds = await Campground.find({});
+    res.json(campgrounds);
+}))
+
+router.get('/:id', catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id)
+        .populate('author')
+        .populate({
+            path: 'reviews',
+            populate: {
+                path: 'author',
+                select: 'username'
+            }
+        });
+    res.json(campground);
+}))
+
+router.post('/', isLoggedIn, validateCampground, upload.array('images', 10), catchAsync(async (req, res, next) => {
+    const campground = new Campground(req.body);
+    campground.images = req.files.map(f => ({url: f.path, filename: f.filename}))
+    campground.author = req.user;
+    await campground.save();
+    console.log(req.body);
+    console.log(req.files)
+    res.json(campground);
+}))
+
+router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, req.body, { new: true });
+    res.json(campground);
+}))
+
+
+router.delete('/:id', isLoggedIn, isAuthor, catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    await Campground.findByIdAndDelete(id);
+    res.json({ message: 'Campground deleted successfully' });
+}))
+
+module.exports = router;
