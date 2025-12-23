@@ -34,13 +34,13 @@ router.get('/:id', catchAsync(async (req, res, next) => {
 }))
 
 router.post('/', isLoggedIn, validateCampground, upload.array('images', 10), catchAsync(async (req, res, next) => {
-    const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
-    if (!geoData.features?.length) {
-        throw new ExpressError('Could not geocode that location. Please try again and enter a valid location.', 400);
-    }   
+    // const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
+    // if (!geoData.features?.length) {
+    //     throw new ExpressError('Could not geocode that location. Please try again and enter a valid location.', 400);
+    // }   
     const campground = new Campground(req.body);
-    campground.geometry = geoData.features[0].geometry;
-    campground.location = geoData.features[0].place_name;
+    // campground.geometry = geoData.features[0].geometry;
+    // campground.location = geoData.features[0].place_name;
     campground.images = req.files.map(f => ({url: f.path, filename: f.filename}))
     campground.author = req.user;
     await campground.save();
@@ -52,15 +52,15 @@ router.post('/', isLoggedIn, validateCampground, upload.array('images', 10), cat
 router.put('/:id', isLoggedIn, isAuthor, validateCampground, upload.array('images', 10), catchAsync(async (req, res, next) => {
     const { id } = req.params;
 
-    const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
-    if (!geoData.features?.length) {
-        throw new ExpressError('Could not geocode that location. Please try again and enter a valid location.', 400);
-    } 
+    // const geoData = await maptilerClient.geocoding.forward(req.body.campground.location, { limit: 1 });
+    // if (!geoData.features?.length) {
+    //     throw new ExpressError('Could not geocode that location. Please try again and enter a valid location.', 400);
+    // } 
 
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body });
 
-    campground.geometry = geoData.features[0].geometry;
-    campground.location = geoData.features[0].place_name;
+    // campground.geometry = geoData.features[0].geometry;
+    // campground.location = geoData.features[0].place_name;
 
     const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.images.push(...imgs);

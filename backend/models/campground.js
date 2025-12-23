@@ -13,17 +13,17 @@ const CampgroundSchema = new Schema({
     ],
     description: String,
     location: String,
-    geometry: {
-        type: {
-            type: String,
-            enum: ['Point'],
-            required: true
-        },
-        coordinates: {
-            type: [Number],
-            required: true
-        }
-    },
+    // geometry: {
+    //     type: {
+    //         type: String,
+    //         enum: ['Point'],
+    //         required: true
+    //     },
+    //     coordinates: {
+    //         type: [Number],
+    //         required: true
+    //     }
+    // },
     author: {
         type: Schema.Types.ObjectId,
         ref: 'User'
