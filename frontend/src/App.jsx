@@ -13,8 +13,8 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      
-      <div style={{ padding: '2rem' }}>
+
+      <div>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/campgrounds" element={<Campgrounds />} />

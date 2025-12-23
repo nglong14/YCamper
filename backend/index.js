@@ -9,6 +9,7 @@ const cors = require('cors');
 const reviews = require('./routers/reviews');
 const campgrounds = require('./routers/campgrounds');
 const users = require('./routers/users');
+const guides = require('./routers/guides');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -52,7 +53,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
 app.use('/users', users);
-
+app.use('/guides', guides);
 
 
 app.use((req, res, next) => {
