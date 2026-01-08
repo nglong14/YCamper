@@ -1,4 +1,4 @@
-# 🏕️ YelpCamp
+# 🏕️ YCamper
 
 A full-stack web application for discovering, sharing, and reviewing campgrounds around the world. Built with React and Node.js.
 
